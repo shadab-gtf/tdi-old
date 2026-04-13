@@ -11,12 +11,13 @@ interface ProjectGridProps {
 }
 
 const ProjectGrid: React.FC<ProjectGridProps> = ({ projects }) => {
+    const visibleProjects = projects.filter((project) => project.showInGrid);
     const gridRef = useRef<HTMLDivElement>(null);
-    const prevLenRef = useRef(projects.length);
+    const prevLenRef = useRef(visibleProjects.length);
     useEffect(() => {
         if (!gridRef.current) return;
-        if (prevLenRef.current === projects.length && prevLenRef.current !== 0) return;
-        prevLenRef.current = projects.length;
+        if (prevLenRef.current === visibleProjects.length && prevLenRef.current !== 0) return;
+        prevLenRef.current = visibleProjects.length;
 
         const cards = gridRef.current.querySelectorAll(".project-card-wrapper");
         if (cards.length === 0) return;
@@ -33,9 +34,9 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects }) => {
                 clearProps: "transform",
             }
         );
-    }, [projects]);
+    }, [visibleProjects.length]);
 
-    if (projects.length === 0) {
+    if (visibleProjects.length === 0) {
         return (
             <div className="flex-1 flex items-center justify-center min-h-[400px]">
                 <div className="text-center">
@@ -63,7 +64,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects }) => {
                 ref={gridRef}
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-6"
             >
-                {projects.map((project, index) => (
+                {visibleProjects.map((project, index) => (
                     <div
                         key={project.id}
                         className={`project-card-wrapper  

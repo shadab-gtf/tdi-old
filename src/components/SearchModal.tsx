@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
     Search,
@@ -11,7 +11,11 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { mockProjects, type Project, categories } from "@/lib/projectsData";
+import {
+    categories,
+    getProjectHref,
+    mockProjects,
+} from "@/lib/projectsData";
 
 interface SearchModalProps {
     isOpen: boolean;
@@ -21,8 +25,15 @@ interface SearchModalProps {
 const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [activeCategory, setActiveCategory] = useState<string>("all");
-    const [isLoading, setIsLoading] = useState(false);
+    const deferredQuery = useDeferredValue(searchQuery);
+    const isLoading = searchQuery !== deferredQuery;
     const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleClose = useCallback(() => {
+        setSearchQuery("");
+        setActiveCategory("all");
+        onClose();
+    }, [onClose]);
 
     // Prevent scroll when open
     useEffect(() => {
@@ -33,38 +44,26 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
             return () => clearTimeout(timer);
         } else {
             document.body.style.overflow = "unset";
-            setSearchQuery("");
-            setActiveCategory("all");
         }
     }, [isOpen]);
 
-    // Simulate API loading state
-    useEffect(() => {
-        if (searchQuery) {
-            setIsLoading(true);
-            const timer = setTimeout(() => setIsLoading(false), 300);
-            return () => clearTimeout(timer);
-        } else {
-            setIsLoading(false);
-        }
-    }, [searchQuery, activeCategory]);
-
     const filteredResults = useMemo(() => {
         return mockProjects.filter((project) => {
-            const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                project.category.toLowerCase().includes(searchQuery.toLowerCase());
+            const normalizedQuery = deferredQuery.toLowerCase();
+            const matchesSearch = project.title.toLowerCase().includes(normalizedQuery) ||
+                project.category.toLowerCase().includes(normalizedQuery);
             const matchesCategory = activeCategory === "all" || project.category === activeCategory;
-            return matchesSearch && matchesCategory;
+            return (project.isNative || project.showInGrid) && matchesSearch && matchesCategory;
         });
-    }, [searchQuery, activeCategory]);
+    }, [deferredQuery, activeCategory]);
 
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
+            if (e.key === "Escape") handleClose();
         };
         window.addEventListener("keydown", handleEsc);
         return () => window.removeEventListener("keydown", handleEsc);
-    }, [onClose]);
+    }, [handleClose]);
 
     const containerVariants: Variants = {
         hidden: { opacity: 0, scale: 0.98, y: 10 },
@@ -102,7 +101,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={onClose}
+                        onClick={handleClose}
                         className="absolute inset-0 bg-[#0a0f20]/60 backdrop-blur-[12px] transition-all duration-500"
                     />
 
@@ -135,7 +134,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                             <div className="flex items-center gap-3 ml-4">
 
                                 <button
-                                    onClick={onClose}
+                                    onClick={handleClose}
                                     className="p-1.5 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-600 sm:hidden"
                                 >
                                     <X className="md:w-5 w-3 h-3 md:h-5" />
@@ -187,8 +186,8 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                                                     layout
                                                 >
                                                     <Link
-                                                        href="/projects"
-                                                        onClick={onClose}
+                                                        href={getProjectHref(project)}
+                                                        onClick={handleClose}
                                                         className="group flex items-center px-3 md:px-6 py-3 md:py-4 hover:bg-[var(--color-secondary)] transition-all duration-300 relative border-l-4 border-transparent hover:border-[var(--color-accent)]"
                                                     >
                                                         <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-[var(--color-secondary)]  flex-shrink-0 border border-gray-100 group-hover:shadow-md transition-shadow">
@@ -238,7 +237,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                                     </div>
                                     <h3 className="md:text-xl text-lg font-serif text-[var(--color-primary)] mb-3">Project not found</h3>
                                     <p className="md:text-[15px] text-[13px] text-gray-500 max-w-[340px] mb-10 leading-relaxed">
-                                        We couldn't find any results for <span className="text-[var(--color-primary)] font-semibold">"{searchQuery}"</span>. Try a different term or browse our top categories.
+                                        We couldn&apos;t find any results for <span className="text-[var(--color-primary)] font-semibold">&quot;{searchQuery}&quot;</span>. Try a different term or browse our top categories.
                                     </p>
                                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full max-w-sm">
                                         <button
@@ -249,7 +248,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                                         </button>
                                         <Link
                                             href="/projects"
-                                            onClick={onClose}
+                                            onClick={handleClose}
                                             className="w-full px-8 py-3.5 bg-[var(--color-primary)] cursor-pointer text-white  text-[14px]  hover:bg-[#1a2345] active:scale-95 transition-all shadow-xl shadow-[#232E5A]/20"
                                         >
                                             View All Projects

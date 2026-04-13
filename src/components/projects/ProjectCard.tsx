@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import type { Project } from "@/lib/projectsData";
+import { getProjectHref, type Project } from "@/lib/projectsData";
 
 interface ProjectCardProps {
     project: Project;
@@ -17,8 +17,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
     const isLastInRowDesktop = (index + 1) % 3 === 0;
     const isLastInRowTablet = (index + 1) % 2 === 0;
 
-    const slug = project.title.toLowerCase().replace(/\s+/g, "-");
-    const href = `/projects/${project.category}/${slug}`;
+    const href = getProjectHref(project);
 
     useGSAP(
         () => {

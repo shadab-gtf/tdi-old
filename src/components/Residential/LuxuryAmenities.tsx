@@ -1,75 +1,130 @@
-"use client"
+"use client";
 
-import React from 'react'
-import Image from 'next/image'
-import { motion } from 'framer-motion'
-
-export interface Amenity {
-  title: string
-  imageSrc: string
-}
+import React, { useCallback, useMemo, useState } from "react";
+import Image from "next/image";
+import FsLightbox from "fslightbox-react";
+import type { ProjectAmenity } from "@/lib/projectsData";
+import Heading from "../common/Heading";
+import Paragraph from "../common/Paragragh";
 
 interface LuxuryAmenitiesProps {
-  title?: string
-  description?: string
-  amenities: Amenity[]
+  title?: string;
+  description?: string;
+  amenities?: ProjectAmenity[];
 }
 
 export default function LuxuryAmenities({
-  title = "Luxury Amenities For A Life Well-Lived",
-  description = "Experience a lifestyle designed around wellness and indulgence",
-  amenities
+  title = "Exquisite Amenities for Elevated Living",
+  description = "Every amenity is curated to enrich everyday moments with comfort, convenience, and calm.",
+  amenities = [],
 }: LuxuryAmenitiesProps) {
+  const [isPaused, setIsPaused] = useState(false);
+  const [lightbox, setLightbox] = useState({ toggler: false, slide: 1 });
+
+  const resolvedAmenities = amenities.filter(
+    (amenity): amenity is ProjectAmenity => Boolean(amenity),
+  );
+
+  const marqueeItems = useMemo(
+    () => (resolvedAmenities.length ? [...resolvedAmenities, ...resolvedAmenities] : []),
+    [resolvedAmenities],
+  );
+
+  const lightboxSources = useMemo(
+    () => resolvedAmenities.map((item) => item.imageSrc),
+    [resolvedAmenities],
+  );
+
+  const handleOpenLightbox = useCallback(
+    (index: number) => {
+      if (!resolvedAmenities.length) return;
+      setLightbox((prev) => ({
+        toggler: !prev.toggler,
+        slide: (index % resolvedAmenities.length) + 1,
+      }));
+    },
+    [resolvedAmenities.length],
+  );
+
+  if (!resolvedAmenities.length) {
+    return null;
+  }
+
   return (
-    <section className="w-full bg-white py-16 md:py-24 lg:py-32 overflow-hidden">
+    <section
+      className="w-full bg-secondary py-12 md:py-16 overflow-hidden"
+      aria-label="Luxury amenities"
+    >
       <div className="max-w-[1440px] mx-auto px-4 md:px-8">
-
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16 md:mb-24 max-w-3xl mx-auto"
+        <div
+          className="text-center mb-10 md:mb-16 max-w-3xl mx-auto"
+          data-aos="reveal-bottom"
+          data-aos-delay="60"
         >
-          <h2 className="text-[#3a4a7a] text-2xl md:text-[32px] font-serif mb-6 tracking-wide">
+          <Heading as="h2" weight="normal">
             {title}
-          </h2>
-          <p className="text-[#666666] text-sm md:text-base font-serif leading-relaxed">
-            {description}
-          </p>
-        </motion.div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 md:gap-y-20">
-          {amenities.map((amenity, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.05 }}
-              className={`flex flex-col group cursor-pointer px-3 lg:px-4
-                border-[#e5e7eb] 
-              max-lg:nth-[2n]:border-r-0
-               lg:nth-[4n]:border-r-0
-                border-r`}
-            >
-              <div className="relative w-full aspect-297/360 mb-6 overflow-hidden">
-                <Image
-                  src={amenity.imageSrc}
-                  alt={amenity.title}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 30vw"
-                  className="object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
-                />
-              </div>
-
-              <h4 className="text-center uppercase text-[11px] md:text-[13px] tracking-[0.15em] font-serif text-[#3a4a7a] group-hover:text-[#d4a34d] transition-colors duration-300">
-                {amenity.title}
-              </h4>
-            </motion.div>
-          ))}
+          </Heading>
+          <Paragraph>{description}</Paragraph>
         </div>
 
+        <div
+          className="relative w-full group"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          <div
+            className="flex w-max gap-4  animate-marquee will-change-transform"
+            style={{ animationPlayState: isPaused ? "paused" : "running" }}
+          >
+            {marqueeItems.map((amenity, index) => (
+              <AmenityCard
+                key={`${amenity.title}-${index}`}
+                amenity={amenity}
+                onClick={() => handleOpenLightbox(index)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <FsLightbox
+          toggler={lightbox.toggler}
+          sources={lightboxSources}
+          slide={lightbox.slide}
+        />
       </div>
     </section>
-  )
+  );
+}
+
+function AmenityCard({
+  amenity,
+  onClick,
+}: {
+  amenity: ProjectAmenity;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="relative flex-shrink-0 overflow-hidden bg-white shadow-sm transition-transform duration-500 hover:scale-[1.02] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent,#d4a34d)]"
+      style={{ width: "clamp(240px, 22vw, 360px)" }}
+      onClick={onClick}
+      aria-label={`View ${amenity.title}`}
+    >
+      <div className="relative h-full w-full aspect-[3/4]">
+        <Image
+          src={amenity.imageSrc}
+          alt={amenity.title}
+          width={480}
+          height={640}
+          sizes="(max-width: 768px) 240px, (max-width: 1280px) 320px, 360px"
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+        <span className="absolute top-4 left-1/2 -translate-x-1/2 text-center text-white font-serif text-base leading-snug drop-shadow-lg">
+          {amenity.title}
+        </span>
+      </div>
+    </button>
+  );
 }

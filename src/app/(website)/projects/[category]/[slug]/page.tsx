@@ -1,94 +1,109 @@
-import HeroMedia from '@/components/Hero'
-import OverviewSection from '@/components/Residential/OverviewSection'
-import BrochureSection from '@/components/Residential/BrochureSection'
-import ResidentialExperience from '@/components/Residential/ResidentialExperience'
-import Highlight from '@/components/Residential/Highlight'
-import MasterPlanMap from '@/components/Residential/MasterPlanMap'
-import LuxuryAmenities from '@/components/Residential/LuxuryAmenities'
-import AirQuality from '@/components/Residential/AirQuality'
-import SeamlessConnectivity from '@/components/Residential/SeamlessConnectivity'
-import ProjectGallery from '@/components/Residential/ProjectGallery'
-import { projectDetails } from '@/lib/projectsData'
-import { notFound } from 'next/navigation'
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import {
+  getProjectByCategoryAndSlug,
+  getProjectBySlug,
+  getProjectSubProject,
+  getRoutableProjects,
+  isProjectCategory,
+} from "@/lib/projectsData";
+import ProjectDetailSections, {
+  mapProjectToDetailViewModel,
+  mapSubProjectToDetailViewModel,
+  ProjectDetailSkeleton,
+  type ProjectDetailViewModel,
+} from "@/components/sections/ProjectDetailSections";
 
-interface ProjectPageProps {
-  params: Promise<{
-    category: string
-    slug: string
-  }>
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.example.com";
+
+function resolveProjectRoute(
+  categoryOrProjectSlug: string,
+  slugOrSubSlug: string,
+): ProjectDetailViewModel | undefined {
+  if (isProjectCategory(categoryOrProjectSlug)) {
+    const project = getProjectByCategoryAndSlug(
+      categoryOrProjectSlug,
+      slugOrSubSlug,
+    );
+
+    return project ? mapProjectToDetailViewModel(project) : undefined;
+  }
+
+  const parentProject = getProjectBySlug(categoryOrProjectSlug);
+  const subProject = getProjectSubProject(categoryOrProjectSlug, slugOrSubSlug);
+
+  if (!parentProject || !subProject) {
+    return undefined;
+  }
+
+  return mapSubProjectToDetailViewModel(parentProject, subProject);
 }
 
-export default async function ProjectPage({ params }: ProjectPageProps) {
-  const { category, slug } = await params
+export function generateStaticParams() {
+  return getRoutableProjects().flatMap((project) => [
+    {
+      category: project.category,
+      slug: project.slug,
+    },
+    ...project.subProjects.map((subProject) => ({
+      category: project.slug,
+      slug: subProject.slug,
+    })),
+  ]);
+}
 
-  const data = projectDetails[slug]
+export async function generateMetadata(
+  props: { params: Promise<{ category: string; slug: string }> },
+): Promise<Metadata> {
+  const { category, slug } = await props.params;
+  const project = resolveProjectRoute(category, slug);
 
-  if (!data) {
-    notFound()
+  if (!project) {
+    return {};
+  }
+
+  const url = `${siteUrl}/projects/${project.slug}`;
+  const title = `${project.title} | Projects`;
+  const description =
+    project.description ||
+    "Discover premium residences and commercial projects in Kundli.";
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      images: project.detail?.galleryImages?.length
+        ? [{ url: project.detail.galleryImages[0], width: 1200, height: 630 }]
+        : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
+}
+
+export default async function ProjectPage({
+  params,
+}: {
+  params: Promise<{ category: string; slug: string }>;
+}) {
+  const { category, slug } = await params;
+  const project = resolveProjectRoute(category, slug);
+
+  if (!project) {
+    notFound();
   }
 
   return (
-    <main className="w-full bg-[#FAFAFA] min-h-screen">
-      <HeroMedia type="image" src="/assets/images/hero.png" />
-      
-      <OverviewSection 
-        title={data.title}
-        stats={data.overview.stats}
-      />
-
-      <BrochureSection
-        imageSrc={data.overview.imageSrc}
-        title={data.title}
-        contentTitle={data.overview.contentTitle}
-        contentDescription={data.overview.contentDescription}
-        brochureText="Download Brochure"
-        brochureLink="#"
-      />
-
-      {data.subProjects && data.subProjects.length > 0 && (
-        <ResidentialExperience 
-          sectionTitle={data.experiencesTitle || "Residential Experiences"}
-          experiences={data.subProjects.map(sp => ({
-            ...sp,
-            link: `/projects/${category}/${slug}/${sp.slug}`,
-            stats: sp.stats
-          }))}
-        />
-      )}
-
-      <Highlight 
-        sectionTitle="Key Highlights"
-        sectionDescription="At TDI City Kundli, residential comfort, commercial vitality, and lifestyle amenities come together within a carefully planned township, creating a balanced environment for everyday living."
-        highlights={data.highlights}
-      />
-
-      {data.masterPlanImage && (
-        <MasterPlanMap 
-          imageSrc={data.masterPlanImage}
-        />
-      )}
-
-      <LuxuryAmenities 
-        amenities={data.amenities}
-      />
-
-      {category === 'residential' && (
-        <AirQuality 
-          cityAqi={400}
-          projectAqi={150}
-        />
-      )}
-
-      <SeamlessConnectivity 
-        points={data.connectivityPoints}
-      />
-
-      {data.galleryImages.length > 0 && (
-        <ProjectGallery 
-          images={data.galleryImages}
-        />
-      )}
-
-    </main>
-  )
+    <Suspense fallback={<ProjectDetailSkeleton />}>
+      <ProjectDetailSections project={project} />
+    </Suspense>
+  );
 }

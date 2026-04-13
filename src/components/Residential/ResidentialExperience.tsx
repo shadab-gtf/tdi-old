@@ -11,7 +11,7 @@ export interface ExperienceCard {
   description: string
   imageSrc: string
   subtitle?: string
-  link: string
+  link?: string
   stats: {
     imageSrc: string
     text: string
@@ -38,7 +38,7 @@ export default function ResidentialExperience({ sectionTitle, experiences }: Res
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-xl md:text-2xl font-serif text-foreground">
+          <h2 className="text-xl md:text-2xl font-serif text-foreground ">
             {sectionTitle}
           </h2>
         </motion.div>
@@ -69,7 +69,7 @@ export default function ResidentialExperience({ sectionTitle, experiences }: Res
 
                 {/* Text Side */}
                 <div className={`w-full lg:w-1/2 flex flex-col gap-6 justify-center ${isReverse ? 'lg:items-center lg:text-center text-center items-center' : 'items-center text-center'}`}>
-                  <h3 className="text-xl md:text-2xl font-serif text-foreground">
+                  <h3 className="text-xl md:text-2xl font-serif text-foreground ">
                     {exp.title}
                   </h3>
                   <p className="text-sm font-medium text-gray-700">
@@ -93,12 +93,17 @@ export default function ResidentialExperience({ sectionTitle, experiences }: Res
                     })}
                   </div>
 
-                  <Link href={exp.link} className="group inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors">
-                    <span className="text-lg font-normal border-b border-accent/30 group-hover:border-accent pb-0.2">
-                      View Detail Page
-                    </span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
+                  {exp.link && (
+                    <Link
+                      href={exp.link}
+                      className="group inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+                    >
+                      <span className="text-lg font-normal border-b border-accent/30 group-hover:border-accent pb-0.2">
+                        View Detail Page
+                      </span>
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  )}
 
                 </div>
               </motion.div>

@@ -1,65 +1,108 @@
-"use client"
+"use client";
 
-import React from 'react'
-import Image from 'next/image'
-import { motion } from 'framer-motion'
+import React, { useState } from "react";
+import Image from "next/image";
+import Heading from "../common/Heading";
+import FsLightbox from "fslightbox-react";
+import Paragraph from "../common/Paragragh";
 
 interface ProjectGalleryProps {
-  title?: string
-  description?: string
-  images: string[]
+  title?: string;
+  description?: string;
+  images: string[];
 }
 
 export default function ProjectGallery({
-  title = "A Glimpse Into Our World Of Excellence",
-  description = "Explore our gallery to experience the perfect blend of elegance, design, and luxury living",
-  images
+  title,
+  description,
+  images,
 }: ProjectGalleryProps) {
-  return (
-    <section className="w-full bg-white py-20 lg:py-28 overflow-hidden">
-      <div className="containers mx-auto px-4 lg:px-8">
-        
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-serif text-[#1e293b] tracking-wide mb-4">
-            {title}
-          </h2>
-          <p className="text-gray-500 font-serif italic text-sm md:text-base">
-            {description}
-          </p>
-        </motion.div>
+  const [toggler, setToggler] = useState(false);
+  const [slide, setSlide] = useState(1);
 
-        {/* Masonry or Grid Gallery */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[250px]">
+  const openLightbox = (index: number) => {
+    setSlide(index + 1);
+    setToggler(!toggler);
+  };
+  const totalImages = images.length;
+  return (
+    <section className="w-full bg-white py-10 md:py-16 overflow-hidden">
+      <div className="containers mx-auto px-4 lg:px-8">
+        <div
+          className="text-center mb-10 md:mb-16 max-w-3xl mx-auto"
+          data-aos="reveal-bottom"
+          data-aos-delay="60"
+        >
+          <Heading
+            as="h2"
+            weight="normal"
+            className=" text-center"
+          >
+            {title}
+          </Heading>
+
+          <Paragraph>{description}</Paragraph>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[repeat(20,minmax(0,1fr))] gap-3 md:gap-4 lg:gap-5">
           {images.map((img, index) => {
-            // Make the first item larger for a masonry-like feel, or alternate sizes
-            const isLarge = index === 0 || index === 3;
+            const total = images.length;
+            let spanClass = "";
+
+            if (total === 1) {
+              spanClass = "md:col-span-20";
+            }
+            else if (total === 2) {
+              spanClass = "md:col-span-10";
+            }
+            else if (total === 3) {
+              if (index === 0) {
+                spanClass = "md:col-span-20";
+              } else {
+                spanClass = "md:col-span-10";
+              }
+            }
+            else if (total === 4) {
+              spanClass = "md:col-span-10";
+            }
+            else {
+              const pattern = index % 7;
+              if (pattern === 0) spanClass = "md:col-span-12";
+              else if (pattern === 1) spanClass = "md:col-span-8";
+              else if (pattern === 2) spanClass = "md:col-span-6";
+              else if (pattern === 3) spanClass = "md:col-span-8";
+              else if (pattern === 4) spanClass = "md:col-span-6";
+              else if (pattern === 5) spanClass = "md:col-span-8";
+              else if (pattern === 6) spanClass = "md:col-span-12";
+            }
+
             return (
-              <motion.div 
+              <div
                 key={index}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
-                className={`relative rounded-sm overflow-hidden group shadow-sm ${isLarge ? 'md:col-span-2 lg:col-span-2 row-span-2' : ''}`}
+                onClick={() => openLightbox(index)}
+                className={`relative overflow-hidden group cursor-pointer ${spanClass} h-[250px] md:h-[400px]`}
               >
-                <Image 
-                  src={img} 
-                  alt={`Gallery Image ${index + 1}`} 
-                  fill 
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                <Image
+                  src={img}
+                  alt={`Gallery Image ${index + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  data-aos="reveal-bottom"
+                  data-aos-delay={120 + (index % 5) * 70}
+                  className="object-cover transition-transform duration-1000 "
                 />
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500" />
-              </motion.div>
-            )
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
+              </div>
+            );
           })}
         </div>
 
+        <FsLightbox
+          toggler={toggler}
+          sources={images}
+          slide={slide}
+        />
       </div>
     </section>
-  )
+  );
 }

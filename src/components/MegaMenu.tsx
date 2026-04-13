@@ -1,62 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { X, Search } from "lucide-react";
+import { ChevronDown, Search, X } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { projectMenuData } from "@/lib/projectsData";
 
-interface MenuItem {
-    name: string;
-    href: string;
-}
-
-interface MenuCategory {
-    title: string;
-    items: MenuItem[];
-}
-
-export const menuData = [
-    {
-        title: "Residential",
-        items: [
-            { name: "Tuscan City", href: "/residential/tuscan-city" },
-            { name: "Tuscan Floors", href: "/residential/tuscan-floors" },
-            { name: "Tuscan Heights", href: "/residential/tuscan-heights" },
-            { name: "TDI Espania-1", href: "/residential/tdi-espania-1" },
-            { name: "Espania-1 Floors", href: "/residential/espania-1-floors" },
-            { name: "Espania-1 Heights", href: "/residential/espania-1-heights" },
-        ],
-    },
-    {
-        title: "Commercial",
-        items: [
-            { name: "TDI Mall Kundli", href: "/commercial/tdi-mall-kundli" },
-            { name: "Rodeo Drive Mall", href: "/commercial/rodeo-drive-mall" },
-        ],
-    },
-    {
-        title: "Healthcare",
-        items: [
-            { name: "Samarpan Cancer Hospital", href: "/healthcare/samarpan-cancer-hospital" },
-            { name: "Noble Multispecialty Hospital", href: "/healthcare/noble-multispecialty-hospital" },
-            { name: "Nulife Super Specialty Hospital", href: "/healthcare/nulife-super-specialty-hospital" },
-        ],
-    },
-    {
-        title: "Educational",
-        items: [
-            { name: "TDI International School", href: "/educational/tdi-international-school" },
-            { name: "GD Goenka Pre School", href: "/educational/gd-goenka-pre-school" },
-        ],
-    },
-    {
-        title: "New Launch",
-        items: [
-            { name: "Residential", href: "/new-launch/residence" },
-            { name: "Commercial", href: "/new-launch/commercial" },
-        ],
-    }
-];
+export const menuData = projectMenuData;
 
 interface MegaMenuProps {
     isOpen: boolean;
@@ -107,6 +57,12 @@ const menuVariants: Variants = {
 };
 
 const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onMouseEnter, onMouseLeave }) => {
+    const [expandedProjectHref, setExpandedProjectHref] = useState<string | null>(null);
+
+    const handleProjectToggle = (href: string) => {
+        setExpandedProjectHref((currentHref) => currentHref === href ? null : href);
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -160,20 +116,69 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onMouseEnter, onMo
                                         <div key={index} className="space-y-8">
                                             <h3 className="text-3xl font-serif text-[#232E5A] tracking-tight">{category.title}</h3>
                                             <ul className="space-y-4">
-                                                {category.items.map((item, idx) => (
-                                                    <li key={idx}>
-                                                        <Link
-                                                            href={item.href}
-                                                            className="text-[#424242] hover:text-[#D9991F] transition-colors  text-base block py-1"
-                                                        >
-                                                            {item.name}
-                                                        </Link>
+                                                {category.items.map((item) => (
+                                                    <li key={item.href}>
+                                                        {item.isNative && item.children.length > 0 ? (
+                                                            <div>
+                                                                <div className="flex w-full items-center justify-between gap-3 py-1">
+                                                                    <Link
+                                                                        href={item.href}
+                                                                        onClick={onClose}
+                                                                        className="text-base text-[#424242] transition-colors hover:text-[#D9991F]"
+                                                                    >
+                                                                        {item.name}
+                                                                    </Link>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleProjectToggle(item.href)}
+                                                                        className="flex h-7 w-7 items-center justify-center text-[#424242] transition-colors hover:text-[#D9991F]"
+                                                                        aria-expanded={expandedProjectHref === item.href}
+                                                                        aria-label={`Toggle ${item.name} subprojects`}
+                                                                    >
+                                                                    <ChevronDown
+                                                                        className={`h-4 w-4 transition-transform ${expandedProjectHref === item.href ? "rotate-180 text-[#D9991F]" : ""}`}
+                                                                    />
+                                                                    </button>
+                                                                </div>
+                                                                <AnimatePresence>
+                                                                    {expandedProjectHref === item.href && (
+                                                                        <motion.ul
+                                                                            initial={{ height: 0, opacity: 0 }}
+                                                                            animate={{ height: "auto", opacity: 1 }}
+                                                                            exit={{ height: 0, opacity: 0 }}
+                                                                            className="overflow-hidden pl-4 pt-2"
+                                                                        >
+                                                                            {item.children.map((child) => (
+                                                                                <li key={child.href}>
+                                                                                    <Link
+                                                                                        href={child.href}
+                                                                                        onClick={onClose}
+                                                                                        className="block py-1 text-sm text-[#666666] transition-colors hover:text-[#D9991F]"
+                                                                                    >
+                                                                                        {child.name}
+                                                                                    </Link>
+                                                                                </li>
+                                                                            ))}
+                                                                        </motion.ul>
+                                                                    )}
+                                                                </AnimatePresence>
+                                                            </div>
+                                                        ) : (
+                                                            <Link
+                                                                href={item.href}
+                                                                onClick={onClose}
+                                                                className="text-[#424242] hover:text-[#D9991F] transition-colors  text-base block py-1"
+                                                            >
+                                                                {item.name}
+                                                            </Link>
+                                                        )}
                                                     </li>
                                                 ))}
                                             </ul>
                                             <div className="pt-2">
                                                 <Link
-                                                    href={`/${category.title.toLowerCase()}`}
+                                                    href={category.href}
+                                                    onClick={onClose}
                                                     className="text-[#D9991F] text-base font-light hover:underline  inline-flex items-center gap-2 group"
                                                 >
                                                     View All

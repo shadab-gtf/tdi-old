@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, Search, ArrowRight, Menu, X, Command } from "lucide-react";
+import { ChevronDown, Search, ArrowRight, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -20,6 +20,7 @@ const Header = () => {
     const [isProjectsExpanded, setIsProjectsExpanded] = useState(true); // initial state for projects mega menu always open
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [expandedCategoryTitle, setExpandedCategoryTitle] = useState<string | null>(null);
+    const [expandedMobileProjectHref, setExpandedMobileProjectHref] = useState<string | null>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     const headerRef = useRef<HTMLElement>(null);
     const pathname = usePathname();
@@ -297,14 +298,65 @@ const Header = () => {
                                                                                     className="overflow-hidden flex flex-col gap-2 pl-2"
                                                                                 >
                                                                                     {category.items.map((item, i) => (
-                                                                                        <Link
-                                                                                            key={i}
-                                                                                            href={item.href}
-                                                                                            className="text-white/80 font-serif text-sm hover:text-white py-1"
-                                                                                            onClick={() => setIsMobileMenuOpen(false)}
-                                                                                        >
-                                                                                            {item.name}
-                                                                                        </Link>
+                                                                                        item.isNative && item.children.length > 0 ? (
+                                                                                            <div key={item.href} className="flex flex-col gap-1">
+                                                                                                <div className="flex items-center justify-between py-1">
+                                                                                                    <Link
+                                                                                                        href={item.href}
+                                                                                                        className="text-white/80 font-serif text-sm hover:text-white"
+                                                                                                        onClick={() => setIsMobileMenuOpen(false)}
+                                                                                                    >
+                                                                                                        {item.name}
+                                                                                                    </Link>
+                                                                                                    <button
+                                                                                                        type="button"
+                                                                                                        className="flex h-7 w-7 items-center justify-center"
+                                                                                                        onClick={(event) => {
+                                                                                                            event.preventDefault();
+                                                                                                            setExpandedMobileProjectHref(
+                                                                                                                expandedMobileProjectHref === item.href ? null : item.href
+                                                                                                            );
+                                                                                                        }}
+                                                                                                        aria-expanded={expandedMobileProjectHref === item.href}
+                                                                                                        aria-label={`Toggle ${item.name} subprojects`}
+                                                                                                    >
+                                                                                                        <ChevronDown
+                                                                                                            className={`w-4 h-4 transition-transform duration-300 ${expandedMobileProjectHref === item.href ? "rotate-180 text-[#D9991F]" : "text-white"}`}
+                                                                                                        />
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                                <AnimatePresence>
+                                                                                                    {expandedMobileProjectHref === item.href && (
+                                                                                                        <motion.div
+                                                                                                            initial={{ height: 0, opacity: 0 }}
+                                                                                                            animate={{ height: "auto", opacity: 1 }}
+                                                                                                            exit={{ height: 0, opacity: 0 }}
+                                                                                                            className="overflow-hidden flex flex-col gap-1 pl-3"
+                                                                                                        >
+                                                                                                            {item.children.map((child) => (
+                                                                                                                <Link
+                                                                                                                    key={child.href}
+                                                                                                                    href={child.href}
+                                                                                                                    className="text-white/70 font-serif text-xs hover:text-white py-1"
+                                                                                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                                                                                >
+                                                                                                                    {child.name}
+                                                                                                                </Link>
+                                                                                                            ))}
+                                                                                                        </motion.div>
+                                                                                                    )}
+                                                                                                </AnimatePresence>
+                                                                                            </div>
+                                                                                        ) : (
+                                                                                            <Link
+                                                                                                key={item.href || i}
+                                                                                                href={item.href}
+                                                                                                className="text-white/80 font-serif text-sm hover:text-white py-1"
+                                                                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                                                            >
+                                                                                                {item.name}
+                                                                                            </Link>
+                                                                                        )
                                                                                     ))}
                                                                                 </motion.div>
                                                                             )}

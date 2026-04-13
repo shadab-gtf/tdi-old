@@ -1,25 +1,52 @@
-import React, { HTMLAttributes } from "react";
+import React, { ElementType, HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
+import { typography } from "@/styles/typography";
 
-export interface ParagraphProps extends HTMLAttributes<HTMLParagraphElement> {}
+type Size = keyof typeof typography.paragraph.sizes;
+type Color = keyof typeof typography.paragraph.colors;
+type Weight = keyof typeof typography.paragraph.weight;
 
-export const Paragraph = React.forwardRef<HTMLParagraphElement, ParagraphProps>(
-  ({ className, children, ...props }, ref) => {
+export interface ParagraphProps
+  extends HTMLAttributes<HTMLParagraphElement> {
+  as?: ElementType;
+  size?: Size;
+  color?: Color;
+  weight?: Weight;
+}
+
+export const Paragraph = React.forwardRef<
+  HTMLParagraphElement,
+  ParagraphProps
+>(
+  (
+    {
+      className,
+      as: Component = "p",
+      size = "base",
+      color = "default",
+      weight = "normal",
+      children,
+      ...props
+    },
+    ref
+  ) => {
     return (
-      <p
+      <Component
         ref={ref}
         className={cn(
-          "text-base font-serif text-[var(--paragraph)] mx-auto mb-6",
+          typography.paragraph.base,
+          typography.paragraph.sizes[size],
+          typography.paragraph.colors[color],
+          typography.paragraph.weight[weight],
           className
         )}
         {...props}
       >
         {children}
-      </p>
+      </Component>
     );
   }
 );
 
 Paragraph.displayName = "Paragraph";
-
 export default Paragraph;
