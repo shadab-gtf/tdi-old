@@ -8,7 +8,8 @@ export default function PrivacyPolicy() {
             <GlobalAnimation />
             <HeroMedia
                 type="image"
-                src="/assets/hero-images/privacy.jpg"
+                desktopFile="/assets/hero-images/privacy.jpg"
+                mobileFile="/assets/hero-images/privacy.jpg"
             />
             <PrivacyPolicySection />
         </main>

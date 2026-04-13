@@ -58,7 +58,8 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
     return (
         <main className="relative min-h-screen w-full bg-white">
-            <HeroMedia type="image" src={blog.coverImage} />
+            <HeroMedia type="image" desktopFile={blog.coverImage} mobileFile={blog.coverImage} />  
+            
             <GlobalAnimation />
             <BlogDetails blog={blog} />
             {/* <RelatedBlogs currentBlog={blog} allBlogs={allBlogs} /> */}

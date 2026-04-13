@@ -9,7 +9,8 @@ export default function Press() {
             <GlobalAnimation />
             <HeroMedia
                 type="image"
-                src="/assets/hero-images/press.jpg"
+                desktopFile="/assets/hero-images/press.jpg"
+                mobileFile="/assets/hero-images/press.jpg"
             />
             <SectionIntro
                 title=" In The News"

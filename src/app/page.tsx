@@ -19,7 +19,8 @@ export default function Home() {
       {/* <Header /> */}
       <HeroMedia
         type="video"
-        src="/assets/videos/homepage-2.mp4"
+        desktopFile="/assets/videos/homepage-2.mp4"
+        mobileFile="/assets/videos/homepage-2.mp4"
       />
       <SectionIntro
         title="Tdi City Kundli"

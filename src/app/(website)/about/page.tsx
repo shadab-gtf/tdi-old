@@ -15,7 +15,8 @@ export default function Home() {
             <GlobalAnimation />
             <HeroMedia
                 type="video"
-                src="/assets/hero.mp4"
+                desktopFile="/assets/hero.mp4"
+                mobileFile="/assets/hero.mp4"
                 poster="/assets/images/about/hero-tdi.png"
             />
             <Infrastructure />

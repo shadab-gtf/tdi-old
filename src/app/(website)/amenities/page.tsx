@@ -12,7 +12,8 @@ export default function Amenities() {
             <GlobalAnimation />
             <HeroMedia
                 type="video"
-                src="/assets/videos/amenities.mp4"
+                desktopFile="/assets/videos/amenities.mp4"
+                mobileFile="/assets/videos/amenities.mp4"
                 poster="/assets/images/hero-poster.jpg"
             />
             <Designed />

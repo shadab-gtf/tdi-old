@@ -30,7 +30,8 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
     return (
         <main className="relative min-h-screen w-full bg-white">
             <GlobalAnimation />
-            <HeroMedia type="image" src="/assets/blog/hero.jpg" />
+            <HeroMedia type="image" desktopFile="/assets/blog/hero.jpg" mobileFile="/assets/blog/hero.jpg" />
+
             <section className="py-20 md:py-24 bg-white">
                 <div className="max-w-[1440px] mx-auto px-4">
                     <div className="text-center mb-16">

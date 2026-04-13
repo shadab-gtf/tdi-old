@@ -8,7 +8,8 @@ export default function TermsConditions() {
             <GlobalAnimation />
             <HeroMedia
                 type="image"
-                src="/assets/hero-images/terms.jpg"
+                desktopFile="/assets/hero-images/terms.jpg"
+                mobileFile="/assets/hero-images/terms.jpg"
             />
             <TermsSection />
         </main>

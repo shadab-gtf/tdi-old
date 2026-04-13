@@ -8,7 +8,8 @@ export default function AboutTDI() {
             <GlobalAnimation />
             <HeroMedia
                 type="image"
-                src="/assets/images/about/hero-tdi.png"
+                desktopFile="/assets/images/about/hero-tdi.png"
+                mobileFile="/assets/images/about/hero-tdi.png"
             />
             <AboutTDISection />
         </main>

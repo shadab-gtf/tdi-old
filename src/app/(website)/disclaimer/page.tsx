@@ -8,7 +8,8 @@ export default function Disclaimer() {
             <GlobalAnimation />
             <HeroMedia
                 type="image"
-                src="/assets/hero-images/disclaimer.jpg"
+                desktopFile="/assets/hero-images/disclaimer.jpg"
+                mobileFile="/assets/hero-images/disclaimer.jpg"
             />
             <DisclaimerSection />
         </main>

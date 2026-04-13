@@ -13,7 +13,7 @@ export default function AwardsPage() {
   return (
     <main className="relative min-h-screen w-full bg-white">
       <GlobalAnimation />
-      <HeroMedia type="image" src="/assets/images/awward/awards-hero.png" />
+      <HeroMedia type="image" desktopFile="/assets/images/awward/awards-hero.png" mobileFile="/assets/images/awward/awards-hero.png" />
       <SectionIntro
         title="Excellence Recognised. Trust Reinforced"
         description="Over the years, TDI has earned recognition for its commitment to quality construction, ethical practices, and visionary township development. Each award reflects the trust of our customers and the strength of our long-standing legacy."

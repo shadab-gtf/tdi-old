@@ -11,7 +11,8 @@ export default function CSR() {
             <GlobalAnimation />
             <HeroMedia
                 type="image"
-                src="/assets/hero-images/csr-hero.jpg"
+                desktopFile="/assets/hero-images/csr-hero.jpg"
+                mobileFile="/assets/hero-images/csr-hero.jpg"
             />
             <SectionIntro
                 title="Building Communities Beyond Infrastructure"
