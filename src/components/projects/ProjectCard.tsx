@@ -1,11 +1,15 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import { getProjectHref, type Project } from "@/lib/projectsData";
+import {
+    getProjectHref,
+    projectHasDetailPage,
+    type Project,
+} from "@/lib/projectsData";
 
 interface ProjectCardProps {
     project: Project;
@@ -13,11 +17,15 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
-    const cardRef = useRef<HTMLAnchorElement>(null);
+    const cardRef = useRef<HTMLElement | null>(null);
     const isLastInRowDesktop = (index + 1) % 3 === 0;
     const isLastInRowTablet = (index + 1) % 2 === 0;
+    const hasDetailPage = projectHasDetailPage(project);
+    const href = hasDetailPage ? getProjectHref(project) : undefined;
 
-    const href = getProjectHref(project);
+    const setCardRef = useCallback((node: HTMLElement | null) => {
+        cardRef.current = node;
+    }, []);
 
     useGSAP(
         () => {
@@ -39,7 +47,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
     );
 
     const handleMouseEnter = () => {
-        if (!cardRef.current) return;
+        if (!hasDetailPage || !cardRef.current) return;
         gsap.to(cardRef.current, {
             y: -6,
             duration: 0.35,
@@ -52,7 +60,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
     };
 
     const handleMouseLeave = () => {
-        if (!cardRef.current) return;
+        if (!hasDetailPage || !cardRef.current) return;
         gsap.to(cardRef.current, {
             y: 0,
             duration: 0.35,
@@ -64,14 +72,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
         }
     };
 
-    return (
-        <Link
-            href={href}
-            ref={cardRef}
-            className="group cursor-pointer mx-auto flex flex-col items-center"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-        >
+    const cardClassName = `${hasDetailPage ? "group cursor-pointer" : "cursor-default"} mx-auto flex flex-col items-center`;
+    const cardContent = (
+        <>
             <div className="relative flex items-center h-[460px]  md:h-[292px] w-full">
 
                 <div className="relative w-[490px] h-full">
@@ -94,10 +97,38 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
             </div>
 
             <div className="pt-4 pb-2 w-full text-center">
-                <h3 className="text-base md:text-lg font-serif text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300">
+                <h3
+                    className={`text-base md:text-lg font-serif text-[var(--color-primary)] transition-colors duration-300 ${hasDetailPage ? "group-hover:text-[var(--color-accent)]" : ""
+                        }`}
+                >
                     {project.title}
                 </h3>
             </div>
+        </>
+    );
+
+    if (!href) {
+        return (
+            <div
+                ref={setCardRef}
+                className={cardClassName}
+                role="article"
+                aria-label={project.title}
+            >
+                {cardContent}
+            </div>
+        );
+    }
+
+    return (
+        <Link
+            href={href}
+            ref={setCardRef}
+            className={cardClassName}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        >
+            {cardContent}
         </Link>
     );
 

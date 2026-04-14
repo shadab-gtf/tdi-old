@@ -30,6 +30,8 @@ interface ProjectDetailSectionsProps {
   project: ProjectDetailViewModel;
 }
 
+const sectionRemovalSlugs = new Set(["tuscan-city", "espania", "espania-royale"]);
+
 export function mapProjectToDetailViewModel(
   project: Project,
 ): ProjectDetailViewModel {
@@ -93,6 +95,7 @@ export default function ProjectDetailSections({
   const { detail, subProjects: subPages } = project;
   const showResidentialExperience =
     project.hasSubProjects === true && subPages.length > 0;
+  const removeSelectedSections = sectionRemovalSlugs.has(project.slug);
 
   return (
     <main className="w-full bg-[#FAFAFA] min-h-screen">
@@ -144,54 +147,61 @@ export default function ProjectDetailSections({
         />
       )}
 
-      <div data-aos="fade-up" data-aos-delay="100">
-        <Highlight
-          sectionTitle="Key Highlights"
-          sectionDescription={project.description}
-          highlights={detail.highlights}
-        />
-      </div>
+      {!removeSelectedSections && (
+        <div data-aos="fade-up" data-aos-delay="100">
+          <Highlight
+            sectionTitle="Key Highlights"
+            sectionDescription={project.description}
+            highlights={detail.highlights}
+          />
+        </div>
+      )}
 
-      {detail.masterPlanLayout === "township" ? (
-        <TuscanCityMasterPlan
-          title={detail.masterPlanTitle}
-          description={detail.masterPlanDescription}
-          imageSrc={detail.masterPlanImage}
-        />
-      ) : (
-        <Structured
-          title={detail.masterPlanTitle}
-          description={detail.masterPlanDescription}
-          plans={detail.masterPlans}
+      {!removeSelectedSections &&
+        (detail.masterPlanLayout === "township" ? (
+          <TuscanCityMasterPlan
+            title={detail.masterPlanTitle}
+            description={detail.masterPlanDescription}
+            imageSrc={detail.masterPlanImage}
+          />
+        ) : (
+          <Structured
+            title={detail.masterPlanTitle}
+            description={detail.masterPlanDescription}
+            plans={detail.masterPlans}
+          />
+        ))}
+
+      {!removeSelectedSections && (
+        <LuxuryAmenities
+          title={
+            detail.amenitiesTitle || "Exquisite Amenities for Elevated Living"
+          }
+          description={
+            detail.amenitiesDescription ||
+            `Each amenity at ${project.title} is meticulously designed to offer unparalleled comfort, fostering an environment where every moment feels extraordinary.`
+          }
+          amenities={detail.amenities}
         />
       )}
 
-      <LuxuryAmenities
-        title={
-          detail.amenitiesTitle || "Exquisite Amenities for Elevated Living"
-        }
-        description={
-          detail.amenitiesDescription ||
-          `Each amenity at ${project.title} is meticulously designed to offer unparalleled comfort, fostering an environment where every moment feels extraordinary.`
-        }
-        amenities={detail.amenities}
-      />
-
-      <div data-aos="fade-up" data-aos-delay="250">
-        <AirQuality
-          entries={[
-            {
-              label: "Delhi AQI",
-              value: 420,
-              suffix: "+",
-            },
-            {
-              label: "Kundli, Sonipat, Haryana AQI",
-              value: 150,
-            },
-          ]}
-        />
-      </div>
+      {!removeSelectedSections && (
+        <div data-aos="fade-up" data-aos-delay="250">
+          <AirQuality
+            entries={[
+              {
+                label: "Delhi AQI",
+                value: 420,
+                suffix: "+",
+              },
+              {
+                label: "Kundli, Sonipat, Haryana AQI",
+                value: 150,
+              },
+            ]}
+          />
+        </div>
+      )}
 
       <div data-aos="fade-up" data-aos-delay="300">
         <SeamlessConnectivity
@@ -202,11 +212,13 @@ export default function ProjectDetailSections({
         />
       </div>
 
-      <ProjectGallery
-        title={detail.galleryTitle}
-        description={detail.galleryDescription}
-        images={detail.galleryImages}
-      />
+      {!removeSelectedSections && (
+        <ProjectGallery
+          title={detail.galleryTitle}
+          description={detail.galleryDescription}
+          images={detail.galleryImages}
+        />
+      )}
     </main>
   );
 }

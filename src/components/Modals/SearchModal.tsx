@@ -12,7 +12,12 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Search, X, FolderSearch, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { categories, getProjectHref, mockProjects } from "@/lib/projectsData";
+import {
+  categories,
+  getProjectHref,
+  mockProjects,
+  projectHasDetailPage,
+} from "@/lib/projectsData";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -199,7 +204,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, searchQuery,
                     <AnimatePresence mode="popLayout">
                       {filteredResults.map((project) => {
                         const hasDetailPage =
-                          project.hasDetailPage !== false && Boolean(project.slug);
+                          projectHasDetailPage(project) && Boolean(project.slug);
                         const href = hasDetailPage
                           ? getProjectHref(project)
                           : undefined;

@@ -36,19 +36,6 @@ export default function ProjectsClient({
     setFilters({ ...defaultFilters, category });
   };
 
-  const handlePropertyTypeChange = (type: "Plot" | "Built up") => {
-    setFilters((prev) => ({ ...prev, propertyType: type }));
-  };
-
-  const handleBlockChange = (block: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      blocks: prev.blocks.includes(block)
-        ? prev.blocks.filter((b) => b !== block)
-        : [block],
-    }));
-  };
-
   return (
     <main className="relative min-h-screen w-full bg-[var(--background)]">
       <GlobalAnimation />
@@ -63,11 +50,7 @@ export default function ProjectsClient({
         <div className="containers mx-auto px-4 lg:px-8 pt-10 pb-4">
           <CategoryNav
             activeCategory={filters.category}
-            propertyType={filters.propertyType}
-            selectedBlocks={filters.blocks}
             onCategoryChange={handleCategoryChange}
-            onPropertyTypeChange={handlePropertyTypeChange}
-            onBlockChange={handleBlockChange}
           />
         </div>
       </div>

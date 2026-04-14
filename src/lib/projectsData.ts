@@ -1994,10 +1994,12 @@ export const mockProjects: Project[] = [
     thumbnail: "/microsite/hero/kingbury.png",
     price: 4.2,
     areaSqFt: 1550,
+    apartmentType: "4 BHK",
+    buildingType: "High-Rise",
     status: "Ready to Move",
     block: "F",
     isNative: true,
-    showInGrid: false,
+    showInGrid: true,
     hasSubProjects: false,
     propertyType: "Built up",
     detail: {
@@ -2155,6 +2157,7 @@ export const mockProjects: Project[] = [
     isNative: false,
     showInGrid: true,
     hasSubProjects: false,
+    hasDetailPage: false,
     institutionType: "School",
     educationLevel: "Senior Secondary",
     detail: {
@@ -2211,6 +2214,7 @@ export const mockProjects: Project[] = [
     isNative: false,
     showInGrid: true,
     hasSubProjects: false,
+    hasDetailPage: false,
     specialisation: "Cardiac Care",
     detail: {
       hero: { type: "image", src: "/microsite/hero/samarpan-cancer-hospital.jpg" },
@@ -2258,6 +2262,7 @@ export const projectMenuData: ProjectMenuCategory[] = projectCategoryValues.map(
         .filter(
           (project) =>
             project.category === category &&
+            projectHasDetailPage(project) &&
             (project.isNative ||
               (project.showInGrid && project.parentProjectSlug === undefined)),
         )
@@ -2291,11 +2296,18 @@ export function getSubProjectHref(
   return `${getProjectHref(project)}/${subProject.slug}`;
 }
 
+export function projectHasDetailPage(
+  project: Pick<Project, "hasDetailPage">,
+): boolean {
+  return project.hasDetailPage !== false;
+}
+
 export function getRoutableProjects(): Project[] {
   return mockProjects.filter(
     (project) =>
-      project.isNative ||
-      (project.showInGrid && project.parentProjectSlug === undefined),
+      projectHasDetailPage(project) &&
+      (project.isNative ||
+        (project.showInGrid && project.parentProjectSlug === undefined)),
   );
 }
 

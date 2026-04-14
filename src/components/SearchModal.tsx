@@ -15,6 +15,7 @@ import {
     categories,
     getProjectHref,
     mockProjects,
+    projectHasDetailPage,
 } from "@/lib/projectsData";
 
 interface SearchModalProps {
@@ -176,7 +177,11 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                                     </p>
                                     <div className="flex flex-col">
                                         <AnimatePresence mode="popLayout">
-                                            {filteredResults.map((project) => (
+                                            {filteredResults.map((project) => {
+                                                const hasDetailPage = projectHasDetailPage(project);
+                                                const href = hasDetailPage ? getProjectHref(project) : "#";
+
+                                                return (
                                                 <motion.div
                                                     key={project.id}
                                                     variants={itemVariants}
@@ -186,9 +191,19 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                                                     layout
                                                 >
                                                     <Link
-                                                        href={getProjectHref(project)}
-                                                        onClick={handleClose}
-                                                        className="group flex items-center px-3 md:px-6 py-3 md:py-4 hover:bg-[var(--color-secondary)] transition-all duration-300 relative border-l-4 border-transparent hover:border-[var(--color-accent)]"
+                                                        href={href}
+                                                        onClick={(event) => {
+                                                            if (!hasDetailPage) {
+                                                                event.preventDefault();
+                                                                return;
+                                                            }
+
+                                                            handleClose();
+                                                        }}
+                                                        className={`group flex items-center px-3 md:px-6 py-3 md:py-4 transition-all duration-300 relative border-l-4 border-transparent ${hasDetailPage
+                                                            ? "hover:bg-[var(--color-secondary)] hover:border-[var(--color-accent)]"
+                                                            : "cursor-default"
+                                                            }`}
                                                     >
                                                         <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-[var(--color-secondary)]  flex-shrink-0 border border-gray-100 group-hover:shadow-md transition-shadow">
                                                             <Image
@@ -199,7 +214,10 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                                                             />
                                                         </div>
                                                         <div className="ml-5 flex-1 min-w-0">
-                                                            <h4 className="text-base font-normal text-[var(--color-primary)] truncate group-hover:text-[var(--color-accent)] transition-colors">
+                                                            <h4
+                                                                className={`text-base font-normal text-[var(--color-primary)] truncate transition-colors ${hasDetailPage ? "group-hover:text-[var(--color-accent)]" : ""
+                                                                    }`}
+                                                            >
                                                                 {project.title}
                                                             </h4>
                                                             <div className="flex items-center gap-3 mt-1 overflow-hidden">
@@ -212,12 +230,15 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                                                                 </span>
                                                             </div>
                                                         </div>
-                                                        <div className="flex flex-col items-end gap-1 ml-4 flex-shrink-0">
-                                                            <MoveRight className="w-5 h-5 text-gray-400 group-hover:text-[var(--color-accent)] group-hover:translate-x-1 transition-all duration-300" />
-                                                        </div>
+                                                        {hasDetailPage && (
+                                                            <div className="flex flex-col items-end gap-1 ml-4 flex-shrink-0">
+                                                                <MoveRight className="w-5 h-5 text-gray-400 group-hover:text-[var(--color-accent)] group-hover:translate-x-1 transition-all duration-300" />
+                                                            </div>
+                                                        )}
                                                     </Link>
                                                 </motion.div>
-                                            ))}
+                                                );
+                                            })}
                                         </AnimatePresence>
                                     </div>
                                 </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { ChevronDown, Search, X } from "lucide-react";
+import { X } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { projectMenuData } from "@/lib/projectsData";
 
@@ -27,7 +27,7 @@ const backdropVariants: Variants = {
         },
     },
     exit: {
-        opacity: 0,
+        opacity: 1,
         transition: {
             duration: 0.3,
             ease: "easeIn",
@@ -50,19 +50,13 @@ const menuVariants: Variants = {
     exit: {
         y: "-100%",
         transition: {
-            duration: 0.7,
+            duration: 1,
             ease: [0.76, 0, 0.24, 1],
         },
     },
 };
 
 const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onMouseEnter, onMouseLeave }) => {
-    const [expandedProjectHref, setExpandedProjectHref] = useState<string | null>(null);
-
-    const handleProjectToggle = (href: string) => {
-        setExpandedProjectHref((currentHref) => currentHref === href ? null : href);
-    };
-
     return (
         <AnimatePresence>
             {isOpen && (
@@ -89,21 +83,10 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onMouseEnter, onMo
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="containers mx-auto px-6 md:px-10 font-serif">
-                                <div className="flex justify-between items-start mb-16">
-                                    <div className="flex-1"></div>
-
+                                <div className="flex justify-end items-start">
                                     <div className="flex items-center gap-8">
-                                        <div className="relative group">
-                                            <input
-                                                type="text"
-                                                placeholder="Search a project name"
-                                                className="border-b border-gray-300 py-2 w-64 focus:outline-none focus:border-[#D9991F] text-gray-600 font-serif bg-transparent placeholder-gray-400 transition-colors"
-                                            />
-                                            <Search className="w-5 h-5 text-gray-400 absolute right-0 top-2" />
-                                        </div>
-
                                         <button onClick={onClose} className="group">
-                                            <div className="w-10 h-10 rounded-full border border-[#D9991F] flex items-center justify-center text-[#D9991F] hover:bg-[#D9991F] hover:text-white transition-all duration-300">
+                                            <div className="w-10 h-10 cursor-pointer rounded-full border border-[#D9991F] flex items-center justify-center text-[#D9991F] hover:bg-[#D9991F] hover:text-white transition-all duration-300">
                                                 <X size={20} />
                                             </div>
                                         </button>
@@ -128,40 +111,20 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onMouseEnter, onMo
                                                                     >
                                                                         {item.name}
                                                                     </Link>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => handleProjectToggle(item.href)}
-                                                                        className="flex h-7 w-7 items-center justify-center text-[#424242] transition-colors hover:text-[#D9991F]"
-                                                                        aria-expanded={expandedProjectHref === item.href}
-                                                                        aria-label={`Toggle ${item.name} subprojects`}
-                                                                    >
-                                                                    <ChevronDown
-                                                                        className={`h-4 w-4 transition-transform ${expandedProjectHref === item.href ? "rotate-180 text-[#D9991F]" : ""}`}
-                                                                    />
-                                                                    </button>
                                                                 </div>
-                                                                <AnimatePresence>
-                                                                    {expandedProjectHref === item.href && (
-                                                                        <motion.ul
-                                                                            initial={{ height: 0, opacity: 0 }}
-                                                                            animate={{ height: "auto", opacity: 1 }}
-                                                                            exit={{ height: 0, opacity: 0 }}
-                                                                            className="overflow-hidden pl-4 pt-2"
-                                                                        >
-                                                                            {item.children.map((child) => (
-                                                                                <li key={child.href}>
-                                                                                    <Link
-                                                                                        href={child.href}
-                                                                                        onClick={onClose}
-                                                                                        className="block py-1 text-sm text-[#666666] transition-colors hover:text-[#D9991F]"
-                                                                                    >
-                                                                                        {child.name}
-                                                                                    </Link>
-                                                                                </li>
-                                                                            ))}
-                                                                        </motion.ul>
-                                                                    )}
-                                                                </AnimatePresence>
+                                                                <ul className="pl-4 pt-2">
+                                                                    {item.children.map((child) => (
+                                                                        <li key={child.href}>
+                                                                            <Link
+                                                                                href={child.href}
+                                                                                onClick={onClose}
+                                                                                className="block py-1 text-sm text-[#666666] transition-colors hover:text-[#D9991F]"
+                                                                            >
+                                                                                {child.name}
+                                                                            </Link>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
                                                             </div>
                                                         ) : (
                                                             <Link
