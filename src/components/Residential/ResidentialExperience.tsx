@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
+import PremiumButton from '../ui/PremiumButton'
 
 export interface ExperienceCard {
   title: string
@@ -72,7 +73,7 @@ export default function ResidentialExperience({ sectionTitle, experiences }: Res
                   <h3 className="text-xl md:text-2xl font-serif text-foreground ">
                     {exp.title}
                   </h3>
-                  <p className="text-sm font-medium text-gray-700">
+                  <p className="text-sm font-serif text-gray-700">
                     {exp.subtitle}
                   </p>
                   <p className="md:text-base text-sm text-(--paragraph) font-serif leading-[25px]">
@@ -84,7 +85,7 @@ export default function ResidentialExperience({ sectionTitle, experiences }: Res
                       return (
                         <div key={i} className="flex items-center gap-2">
                           <Image src={stat.imageSrc} alt={stat.text} width={16} height={16} className="object-contain" />
-                          <span className="uppercase tracking-widest text-xs text-gray-700">{stat.text}</span>
+                          <span className="uppercase  text-xs text-gray-700">{stat.text}</span>
                           {i !== exp.stats.length - 1 && (
                             <div className="w-px h-4 bg-gray-300 ml-4 hidden sm:block" />
                           )}
@@ -94,15 +95,18 @@ export default function ResidentialExperience({ sectionTitle, experiences }: Res
                   </div>
 
                   {exp.link && (
-                    <Link
-                      href={exp.link}
-                      className="group inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
-                    >
-                      <span className="text-lg font-normal border-b border-accent/30 group-hover:border-accent pb-0.2">
-                        View Detail Page
-                      </span>
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                    </Link>
+                    // <Link
+                    //   href={exp.link}
+                    //   className="group inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+                    // >
+                    //   <span className="text-lg font-normal border-b border-accent/30 group-hover:border-accent pb-0.2">
+                    //     View Detail Page
+                    //   </span>
+                    //   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    // </Link> 
+                    <PremiumButton href={exp.link} >
+                      View More
+                    </PremiumButton>
                   )}
 
                 </div>
