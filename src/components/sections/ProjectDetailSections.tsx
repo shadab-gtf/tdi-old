@@ -9,6 +9,7 @@ import AirQuality from "@/components/Residential/AirQuality";
 import ProjectGallery from "@/components/Residential/ProjectGallery";
 import SeamlessConnectivity from "@/components/Residential/SeamlessConnectivity";
 import ResidentialExperience from "@/components/Residential/ResidentialExperience";
+import ProjectDetailAos from "@/components/Residential/ProjectDetailAos";
 import {
   getSubProjectHref,
   type Project,
@@ -99,6 +100,8 @@ export default function ProjectDetailSections({
 
   return (
     <main className="w-full bg-[#FAFAFA] min-h-screen">
+      <ProjectDetailAos />
+
       {detail.hero.type === "image" ? (
         <HeroMedia
           type="image"
